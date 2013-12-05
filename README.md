@@ -29,15 +29,16 @@ gulp.task('rss', function() {
     .pipe(rss(                // Generate RSS data
       // Configuration
       {
-        // Properties mapping
+        // How we deal with contextual data (typically Front-Matter)
         properties: {
           data:         'frontMatter',  // name of property containing the data, typically extracted front-matter
-          title:        'title',        // post's title (default will then be `file.frontMatter.title`)
-          link:         'permalink',    // post's URL
-          description:  'description',  // post's description
-          author:       'author',       // post's author
-          date:         'date',         // post's publication date
-          image:        'image'         // post's thumbnail
+          // Proparty names mapping
+          title:        'title',        // post's title (means plugin will read `file.frontMatter.title`, mandatory)
+          link:         'permalink',    // post's URL (mandatory)
+          description:  'description',  // post's description (optional)
+          author:       'author',       // post's author (optional)
+          date:         'date',         // post's publication date (mandatory, default = now)
+          image:        'image'         // post's thumbnail (optional)
         },
 
         // Feed configuration
