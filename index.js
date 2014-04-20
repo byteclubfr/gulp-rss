@@ -2,7 +2,6 @@ var es = require('event-stream');
 var _ = require('lodash');
 var util = require('gulp-util');
 var path = require('path');
-var File = require('gulp').File;
 var Feed = require('feed');
 
 module.exports = function rss (options) {
@@ -32,6 +31,10 @@ module.exports = function rss (options) {
   delete feedOptions.properties;
   delete feedOptions.render;
 
+  if (feedOptions.link[feedOptions.link.length - 1] !== "/") {
+    feedOptions.link += "/";
+  }
+
   if (!feedOptions.title) {
     throw new Error('Required option: `title` (feed title)');
   }
@@ -50,7 +53,13 @@ module.exports = function rss (options) {
 
       var item = {};
       for (var prop in properties) {
-        item[prop] = data[prop] || '';
+        item[prop] = data[properties[prop]] || '';
+      }
+
+      // check to see if the link looks like a URL. If not, add the
+      // rest of the URL
+      if (item.link.indexOf(":") === -1) {
+        item.link = feedOptions.link + item.link;
       }
 
       // 'date' must be a Date object
@@ -60,12 +69,16 @@ module.exports = function rss (options) {
         item.date = new Date(item.date);
       }
 
-      feed.item(item);
+      if (!item.title && !item.description) {
+        util.log('[rss]', file.path, 'skipped (no title or description)');
+        return;
+      }
+      feed.addItem(item);
     },
 
     function end () {
       try {
-        var file = new File('feed.xml', './feed.xml');
+        var file = new util.File('feed.xml', process.cwd() + 'feed.xml');
         file.contents = new Buffer(feed.render(feedType));
       } catch (e) {
         this.emit('error', e);
