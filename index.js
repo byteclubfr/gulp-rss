@@ -65,6 +65,16 @@ module.exports = function rss(options) {
       Object.keys(properties).forEach(function (prop) {
         item[prop] = data[properties[prop]] || '';
       });
+      
+      if (item.author === "") {
+        delete item.author;
+      } else if (typeof item.author === "string") {
+        item.author = [
+          {
+            name: item.author
+          }
+        ];
+      }
 
       // check to see if the link looks like a URL. If not, add the
       // rest of the URL
@@ -83,6 +93,7 @@ module.exports = function rss(options) {
         util.log('[rss]', file.path, 'skipped (no title or description)');
         return;
       }
+      item.content = String(file.contents);
       feed.addItem(item);
     },
 
