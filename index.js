@@ -1,35 +1,43 @@
-var es = require('event-stream');
-var _ = require('lodash');
-var util = require('gulp-util');
-var path = require('path');
-var Feed = require('feed');
+"use strict";
 
-module.exports = function rss (options) {
+var es = require('event-stream'),
+  _ = require('lodash'),
+  util = require('gulp-util'),
+  path = require('path'),
+  Feed = require('feed');
+
+module.exports = function rss(options) {
   // Default options
 
-  var feedType = (options || {}).render || 'atom-1.0';
+  options = options || {};
+  _.defaults(options, {
+    render: "atom-1.0",
+    data: "frontMatter",
+    filename: "feed.xml",
+    feedOptions: {},
+    properties: {}
+  });
 
-  var properties = _.extend({
-    data:         'frontMatter',
+  var properties = options.properties,
+    feedOptions = options.feedOptions,
+    feed;
+  
+  _.defaults(properties, {
     title:        'title',
     link:         'permalink',
     description:  'description',
     author:       'author',
     date:         'date',
     image:        'image'
-  }, (options || {}).properties || {});
-  var dataProperty = properties.data;
-  delete properties.data;
+  });
 
-  var feedOptions = _.extend({
+  _.defaults(feedOptions, {
     title:        null,
     // Basic options required for `feed` to work properly
     link:         '',
     description:  '',
     author:       {}
-  }, options || {});
-  delete feedOptions.properties;
-  delete feedOptions.render;
+  });
 
   if (feedOptions.link[feedOptions.link.length - 1] !== "/") {
     feedOptions.link += "/";
@@ -40,21 +48,23 @@ module.exports = function rss (options) {
   }
 
 
-  var feed = new Feed(feedOptions);
+  feed = new Feed(feedOptions);
 
   return es.through(
 
-    function data (file) {
-      var data = file[dataProperty];
+    function (file) {
+      var data = file[options.data],
+        item = {},
+        prop;
+      
       if (!data) {
         util.log('[rss]', file.path, 'skipped (no data)');
         return;
       }
 
-      var item = {};
-      for (var prop in properties) {
+      Object.keys(properties).forEach(function (prop) {
         item[prop] = data[properties[prop]] || '';
-      }
+      });
 
       // check to see if the link looks like a URL. If not, add the
       // rest of the URL
@@ -76,10 +86,15 @@ module.exports = function rss (options) {
       feed.addItem(item);
     },
 
-    function end () {
+    function () {
+      var file;
       try {
-        var file = new util.File('feed.xml', process.cwd() + 'feed.xml');
-        file.contents = new Buffer(feed.render(feedType));
+        file = new util.File({
+          cwd: process.cwd(),
+          base: process.cwd(),
+          path: path.join(process.cwd(), options.filename),
+          contents: new Buffer(feed.render(options.render))
+        });
       } catch (e) {
         this.emit('error', e);
         return;
