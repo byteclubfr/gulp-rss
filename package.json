@@ -1,6 +1,6 @@
 {
   "name": "gulp-rss",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Generates an RSS file from files with metadata (typically extracted using `gulp-front-matter`)",
   "main": "index.js",
   "scripts": {
@@ -20,18 +20,18 @@
   },
   "homepage": "https://github.com/lmtm/gulp-rss",
   "dependencies": {
-    "event-stream": "~3.0.18",
+    "gulp-util": "~2.2.0",
+    "feed": "~0.2.6",
     "lodash": "~2.4.1",
-    "feed": "~0.2.5",
-    "gulp-util": "~1.1.1"
+    "event-stream": "~3.1.2"
   },
   "peerDependencies": {
-    "gulp": "~2.7.0"
+    "gulp": "~3.6.0"
   },
   "devDependencies": {
-    "chai": "~1.8.1",
-    "mocha": "~1.15.1",
-    "gulp": "~2.7.0",
-    "gulp-front-matter": "0.0.1"
+    "gulp": "3.6.0",
+    "gulp-front-matter": "~1.0.0",
+    "chai": "~1.9.1",
+    "mocha": "~1.18.2"
   }
 }
