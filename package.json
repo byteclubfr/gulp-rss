@@ -1,6 +1,6 @@
 {
   "name": "gulp-rss",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Generates an RSS file from files with metadata (typically extracted using `gulp-front-matter`)",
   "main": "index.js",
   "scripts": {
@@ -26,10 +26,10 @@
     "event-stream": "~3.1.2"
   },
   "peerDependencies": {
-    "gulp": "~3.6.0"
+    "gulp": "^3.8.1"
   },
   "devDependencies": {
-    "gulp": "3.6.0",
+    "gulp": "^3.8.1",
     "gulp-front-matter": "~1.0.0",
     "chai": "~1.9.1",
     "mocha": "~1.18.2"
