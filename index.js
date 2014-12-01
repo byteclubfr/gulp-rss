@@ -20,8 +20,9 @@ module.exports = function rss(options) {
 
   var properties = options.properties,
     feedOptions = options.feedOptions,
+    items,
     feed;
-  
+
   _.defaults(properties, {
     title:        'title',
     link:         'permalink',
@@ -49,6 +50,7 @@ module.exports = function rss(options) {
 
 
   feed = new Feed(feedOptions);
+  items = [];
 
   return es.through(
 
@@ -56,7 +58,7 @@ module.exports = function rss(options) {
       var data = file[options.data],
         item = {},
         prop;
-      
+
       if (!data) {
         util.log('[rss]', file.path, 'skipped (no data)');
         return;
@@ -65,7 +67,7 @@ module.exports = function rss(options) {
       Object.keys(properties).forEach(function (prop) {
         item[prop] = data[properties[prop]] || '';
       });
-      
+
       if (item.author === "") {
         delete item.author;
       } else if (typeof item.author === "string") {
@@ -94,10 +96,18 @@ module.exports = function rss(options) {
         return;
       }
       item.content = String(file.contents);
-      feed.addItem(item);
+      items.push(item);
     },
 
     function () {
+      items.sort(function(a, b){
+        return b.date - a.date;
+      });
+
+      for (var i=0; i < items.length; i++){
+        feed.addItem(items[i]);
+      }
+
       var file;
       try {
         file = new util.File({
